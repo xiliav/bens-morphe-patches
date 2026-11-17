@@ -36,7 +36,7 @@ tasks.test {
 }
 
 tasks.named("check") {
-    dependsOn(":extensions:extension:testReleaseUnitTest")
+    dependsOn(":extensions:extension:testDebugUnitTest")
 }
 
 tasks {
