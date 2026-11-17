@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.0...v1.1.1) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* initialize Transit Maps hooks early and repair cached contexts ([e822cc1](https://github.com/xiliav/bens-morphe-patches/commit/e822cc11e10f74ee30343f151926c1c37371cdb2))
+* run cache tests with the template's enabled unit-test variant ([3c03fd0](https://github.com/xiliav/bens-morphe-patches/commit/3c03fd0f0c08fd8ba3102d46f5c399c61fa950f8))
+
 ## [1.1.0](https://github.com/xiliav/bens-morphe-patches/compare/v1.0.0...v1.1.0) (2026-11-17)
 
 ### ✨ New Features
