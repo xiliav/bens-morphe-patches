@@ -1,5 +1,6 @@
 package app.template.patches.thetransit
 
+import app.morphe.patcher.apk.ApkSignatureScheme
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
 import app.morphe.patcher.patch.PatchException
@@ -202,5 +203,45 @@ class TransitPatchTest {
         ).toMutable()
         assertThrows(PatchException::class.java) { initializeTransitBeforeProviders(app, "") }
         assertEquals(1, app.methods.size)
+    }
+
+    @Test
+    fun `certificate selection prefers modern APK signers and ignores source stamps`() {
+        val v2 = byteArrayOf(2)
+        val v3 = byteArrayOf(3)
+        val v31 = byteArrayOf(31)
+        val certificates = mapOf(
+            ApkSignatureScheme(1234) to listOf(byteArrayOf(99)),
+            ApkSignatureScheme.V2 to listOf(v2),
+            ApkSignatureScheme.V3 to listOf(v3),
+            ApkSignatureScheme.V31 to listOf(v31)
+        )
+        assertSame(v31, selectTransitCertificate(certificates))
+        assertSame(v3, selectTransitCertificate(certificates - ApkSignatureScheme.V31))
+        assertSame(v2, selectTransitCertificate(certificates - ApkSignatureScheme.V31 - ApkSignatureScheme.V3))
+        assertNull(selectTransitCertificate(mapOf(ApkSignatureScheme(1234) to listOf(byteArrayOf(99)))))
+    }
+
+    @Test
+    fun `missing signing blocks leave the explicit fallback available`() {
+        assertNull(selectTransitCertificate(emptyMap()))
+        assertNull(selectTransitCertificate(mapOf(ApkSignatureScheme.V2 to emptyList())))
+    }
+
+    @Test
+    fun `input certificate bytes are embedded as unsigned hexadecimal in the helper getter`() {
+        val method = ImmutableMethod(
+            TRANSIT_HELPER_CLASS, "originalCertificateHex", emptyList(), "Ljava/lang/String;",
+            AccessFlags.PUBLIC.value or AccessFlags.STATIC.value, null, null,
+            MutableMethodImplementation(1).apply {
+                addInstruction(BuilderInstruction21c(Opcode.CONST_STRING, 0, ImmutableStringReference("fallback")))
+                addInstruction(BuilderInstruction11x(Opcode.RETURN_OBJECT, 0))
+            }
+        ).toMutable()
+        setTransitCertificate(method, byteArrayOf(0, 16, 127, -1))
+        val certificate = method.getInstruction<ReferenceInstruction>(0).reference as StringReference
+        assertEquals("00107fff", certificate.string)
+        assertEquals(Opcode.RETURN_OBJECT, method.getInstruction(1).opcode)
+        assertEquals(1, method.implementation!!.registerCount)
     }
 }

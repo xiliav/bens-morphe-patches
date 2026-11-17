@@ -1,5 +1,6 @@
 package app.template.patches.thetransit
 
+import app.morphe.patcher.apk.ApkSignatureScheme
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
@@ -8,6 +9,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.stringOption
+import app.morphe.patcher.patch.mutableClassDefBy
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod.Companion.toMutable
 import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
@@ -18,6 +20,7 @@ import com.android.tools.smali.dexlib2.builder.MutableMethodImplementation
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
 import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
+import java.util.logging.Logger
 
 @Suppress("unused")
 val transitUnlockRoyalePatch = bytecodePatch(
@@ -37,6 +40,22 @@ val transitUnlockRoyalePatch = bytecodePatch(
     )
 
     execute {
+        // Read the input APK's signer before Morphe re-signs the patched output.
+        val certificate = runCatching {
+            selectTransitCertificate(packageMetadata.signingCertificates.mapValues { (_, certificates) ->
+                certificates.map { it.encoded }
+            })
+        }.getOrNull()
+        if (certificate != null) {
+            val getter = mutableClassDefBy(TRANSIT_HELPER_CLASS).methods.single {
+                it.name == "originalCertificateHex" && it.parameterTypes.isEmpty() && it.returnType == "Ljava/lang/String;"
+            }
+            setTransitCertificate(getter, certificate)
+            Logger.getLogger("Transit").info("Using the original APK signing certificate for Maps compatibility.")
+        } else {
+            Logger.getLogger("Transit").warning("Original APK certificate unavailable; using the upstream Transit certificate fallback.")
+        }
+
         RoyaleIsActiveFingerprint.method.apply {
             removeInstructions(0, instructions.count())
             addInstructions(0, "const/4 v0, 0x1\nreturn v0")
@@ -53,6 +72,19 @@ val transitUnlockRoyalePatch = bytecodePatch(
         initializeTransitBeforeProviders(TransitAppOnCreateFingerprint.classDef, key)
         initializeTransitHelper(TransitAppOnCreateFingerprint.method, key)
     }
+}
+
+internal fun selectTransitCertificate(certificates: Map<ApkSignatureScheme, List<ByteArray>>): ByteArray? =
+    listOf(ApkSignatureScheme.V31, ApkSignatureScheme.V3, ApkSignatureScheme.V2)
+        .firstNotNullOfOrNull { scheme -> certificates[scheme]?.firstOrNull() }
+
+internal fun setTransitCertificate(method: MutableMethod, certificate: ByteArray) {
+    if (certificate.isEmpty() || method.returnType != "Ljava/lang/String;" || method.parameterTypes.isNotEmpty()) {
+        throw PatchException("Transit certificate getter has an unexpected signature or empty certificate.")
+    }
+    val hex = certificate.joinToString("") { "%02x".format(it.toInt() and 0xff) }
+    method.removeInstructions(0, method.instructions.count())
+    method.addInstructions(0, "const-string v0, \"$hex\"\nreturn-object v0")
 }
 
 internal fun forceRoyaleFeatureFlag(method: MutableMethod, resultIndex: Int) {

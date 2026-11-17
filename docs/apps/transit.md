@@ -32,7 +32,7 @@ If the map is blank, capture Transit logs while opening the map and look for `Tr
 
 An `Authorization failure` can still require a replacement key authorized for this package/certificate, with Maps SDK for Android enabled and any required billing configured. Certificate hooks cannot guarantee that Google will accept the original key from a re-signed app. The upstream maintainer's private shared key is not included.
 
-The original APK signing certificate cannot be independently verified from the extracted manifest and DEX files. The helper retains the public certificate used by the upstream Transit patch.
+Morphe extracts the original signing certificate from the full input APK at patch time and embeds it in the helper. It prefers APK Signature Scheme v3.1, then v3, then v2; source-stamp certificates are ignored. If no signing certificate is available, the patch logs a warning and retains the upstream certificate fallback. Always patch the original APK rather than a previously patched copy.
 
 ## Attribution
 

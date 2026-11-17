@@ -128,8 +128,13 @@ public final class TransitHelper {
         return repaired;
     }
 
+    // Replaced at patch time with the input APK's certificate when available.
+    public static String originalCertificateHex() {
+        return CERT_HEX;
+    }
+
     private static void spoofSignature(PackageInfo info) {
-        Signature[] signatures = new Signature[]{new Signature(hexToBytes(CERT_HEX))};
+        Signature[] signatures = new Signature[]{new Signature(hexToBytes(originalCertificateHex()))};
         info.signatures = signatures;
         try {
             // The SigningDetails class changed package across Android releases. Resolve
