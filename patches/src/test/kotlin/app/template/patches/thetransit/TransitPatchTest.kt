@@ -121,7 +121,8 @@ class TransitPatchTest {
         val initializer = method.getInstruction<ReferenceInstruction>(1).reference as MethodReference
         assertEquals(TRANSIT_HELPER_CLASS, initializer.definingClass)
         assertEquals("init", initializer.name)
-        assertEquals(listOf("Ljava/lang/String;"), initializer.parameterTypes)
+        assertEquals(listOf("Ljava/lang/String;"), initializer.parameterTypes.map { it.toString() })
+        assertEquals("V", initializer.returnType)
         assertEquals(Opcode.INVOKE_SUPER, method.getInstruction(2).opcode)
         assertEquals(Opcode.RETURN_VOID, method.getInstruction(3).opcode)
         assertEquals(15, method.implementation!!.registerCount)
