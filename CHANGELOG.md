@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.1...v1.1.2) (2026-11-17)
+
+### 🐛 Bug Fixes
+
+* derive Transit Maps identity from the original APK certificate ([6233a26](https://github.com/xiliav/bens-morphe-patches/commit/6233a26c9f59356918f99a12e3d898b47d1c124f))
+
 ## [1.1.1](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.0...v1.1.1) (2026-11-17)
 
 ### 🐛 Bug Fixes
