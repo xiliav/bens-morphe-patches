@@ -4,6 +4,7 @@ extension {
 
 android {
     namespace = "app.template.extension"
+    compileSdk = 37
     defaultConfig {
         minSdk = 32
     }
