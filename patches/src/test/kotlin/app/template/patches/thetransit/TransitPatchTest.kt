@@ -4,6 +4,7 @@ import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod.Companion.toMutable
+import app.morphe.patcher.util.proxy.mutableTypes.MutableClass.Companion.toMutable
 import com.android.tools.smali.dexlib2.AccessFlags
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.builder.MutableMethodImplementation
@@ -12,7 +13,9 @@ import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction11x
 import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction21c
 import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction35c
 import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.FiveRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.TwoRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.StringReference
@@ -116,15 +119,23 @@ class TransitPatchTest {
             }
         ).toMutable()
         initializeTransitHelper(method, "")
-        val key = (method.getInstruction<ReferenceInstruction>(0).reference as StringReference).string
+        val context = method.getInstruction<TwoRegisterInstruction>(0)
+        assertEquals(Opcode.MOVE_OBJECT_FROM16, context.opcode)
+        assertEquals(0, context.registerA)
+        assertEquals(14, context.registerB)
+        val key = (method.getInstruction<ReferenceInstruction>(1).reference as StringReference).string
         assertEquals("", key)
-        val initializer = method.getInstruction<ReferenceInstruction>(1).reference as MethodReference
+        val call = method.getInstruction<FiveRegisterInstruction>(2)
+        assertEquals(2, call.registerCount)
+        assertEquals(0, call.registerC)
+        assertEquals(1, call.registerD)
+        val initializer = method.getInstruction<ReferenceInstruction>(2).reference as MethodReference
         assertEquals(TRANSIT_HELPER_CLASS, initializer.definingClass)
         assertEquals("init", initializer.name)
-        assertEquals(listOf("Ljava/lang/String;"), initializer.parameterTypes.map { it.toString() })
+        assertEquals(listOf("Landroid/content/Context;", "Ljava/lang/String;"), initializer.parameterTypes.map { it.toString() })
         assertEquals("V", initializer.returnType)
-        assertEquals(Opcode.INVOKE_SUPER, method.getInstruction(2).opcode)
-        assertEquals(Opcode.RETURN_VOID, method.getInstruction(3).opcode)
+        assertEquals(Opcode.INVOKE_SUPER, method.getInstruction(3).opcode)
+        assertEquals(Opcode.RETURN_VOID, method.getInstruction(4).opcode)
         assertEquals(15, method.implementation!!.registerCount)
     }
 
@@ -141,13 +152,55 @@ class TransitPatchTest {
     }
 
     @Test
-    fun `startup injection refuses to overwrite this when no local register exists`() {
-        val method = ImmutableMethod(
-            TRANSIT_APP_CLASS, "onCreate", emptyList(), "V", AccessFlags.PUBLIC.value,
-            null, null, MutableMethodImplementation(1).apply {
-                addInstruction(BuilderInstruction10x(Opcode.RETURN_VOID))
-            }
+    fun `startup injection refuses to overwrite this when fewer than two locals exist`() {
+        for (registerCount in listOf(1, 2)) {
+            val method = ImmutableMethod(
+                TRANSIT_APP_CLASS, "onCreate", emptyList(), "V", AccessFlags.PUBLIC.value,
+                null, null, MutableMethodImplementation(registerCount).apply {
+                    addInstruction(BuilderInstruction10x(Opcode.RETURN_VOID))
+                }
+            ).toMutable()
+            assertThrows(PatchException::class.java) { initializeTransitHelper(method, "") }
+        }
+    }
+
+    @Test
+    fun `early hook attaches the base context before installing Maps compatibility`() {
+        val app = ImmutableClassDef(
+            TRANSIT_APP_CLASS, AccessFlags.PUBLIC.value, "Landroid/app/Application;",
+            null, null, null, null, emptyList()
         ).toMutable()
-        assertThrows(PatchException::class.java) { initializeTransitHelper(method, "") }
+        initializeTransitBeforeProviders(app, "")
+        val method = app.methods.single()
+        assertEquals("attachBaseContext", method.name)
+        assertEquals(listOf("Landroid/content/Context;"), method.parameterTypes.map { it.toString() })
+        assertEquals(AccessFlags.PROTECTED.value, method.accessFlags)
+        val superCall = method.getInstruction<ReferenceInstruction>(0).reference as MethodReference
+        assertEquals("Landroid/app/Application;", superCall.definingClass)
+        assertEquals("attachBaseContext", superCall.name)
+        assertEquals(Opcode.INVOKE_SUPER, method.getInstruction(0).opcode)
+        val context = method.getInstruction<TwoRegisterInstruction>(1)
+        assertEquals(0, context.registerA)
+        assertEquals(2, context.registerB)
+        val helper = method.getInstruction<ReferenceInstruction>(3).reference as MethodReference
+        assertEquals(TRANSIT_HELPER_CLASS, helper.definingClass)
+        assertEquals(listOf("Landroid/content/Context;", "Ljava/lang/String;"), helper.parameterTypes.map { it.toString() })
+        assertEquals(Opcode.RETURN_VOID, method.getInstruction(4).opcode)
+        assertEquals(4, method.implementation!!.registerCount)
+    }
+
+    @Test
+    fun `early hook refuses to replace an existing application attachment`() {
+        val method = ImmutableMethod(
+            TRANSIT_APP_CLASS, "attachBaseContext",
+            listOf(ImmutableMethodParameter("Landroid/content/Context;", null, null)),
+            "V", AccessFlags.PROTECTED.value, null, null, MutableMethodImplementation(4)
+        )
+        val app = ImmutableClassDef(
+            TRANSIT_APP_CLASS, AccessFlags.PUBLIC.value, "Landroid/app/Application;",
+            null, null, null, null, listOf(method)
+        ).toMutable()
+        assertThrows(PatchException::class.java) { initializeTransitBeforeProviders(app, "") }
+        assertEquals(1, app.methods.size)
     }
 }

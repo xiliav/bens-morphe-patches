@@ -26,6 +26,12 @@ Unlike the upstream implementation, the default configuration preserves the Maps
 
 The optional **Google Maps API key** patch setting can supply your own compatible key if needed. Leave it blank for the normal configuration. A supplied key is embedded only in your patched APK; no private key or account credential is shipped in this repository. The certificate hook uses Android internals, so its behavior can vary across Android releases.
 
+The helper starts in `Application.attachBaseContext`, before providers can cache Maps credentials, and refreshes the caches again at `onCreate`. It updates already-created package-manager delegates and the app's cached `ApplicationInfo`, not just Android's static package-manager reference.
+
+If the map is blank, capture Transit logs while opening the map and look for `TransitHelper` and `Google Maps Android API`. The helper logs initialization failures and the app-reported certificate SHA-1, but never logs an API key. Redact any API key printed by Google's own authorization error before sharing logs.
+
+An `Authorization failure` can still require a replacement key authorized for this package/certificate, with Maps SDK for Android enabled and any required billing configured. Certificate hooks cannot guarantee that Google will accept the original key from a re-signed app. The upstream maintainer's private shared key is not included.
+
 The original APK signing certificate cannot be independently verified from the extracted manifest and DEX files. The helper retains the public certificate used by the upstream Transit patch.
 
 ## Attribution

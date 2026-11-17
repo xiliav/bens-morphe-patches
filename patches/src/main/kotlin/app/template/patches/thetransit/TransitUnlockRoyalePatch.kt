@@ -9,9 +9,15 @@ import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.stringOption
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod.Companion.toMutable
+import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 import app.template.patches.shared.Constants.TRANSIT_COMPATIBILITY
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.AccessFlags
+import com.android.tools.smali.dexlib2.builder.MutableMethodImplementation
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.immutable.ImmutableMethod
+import com.android.tools.smali.dexlib2.immutable.ImmutableMethodParameter
 
 @Suppress("unused")
 val transitUnlockRoyalePatch = bytecodePatch(
@@ -41,9 +47,11 @@ val transitUnlockRoyalePatch = bytecodePatch(
             forceRoyaleFeatureFlag(fp.method, fp.instructionMatches.last().index)
         }
 
-        // Install the process-local certificate compatibility hook before SDK startup.
-        // The rest of onCreate, including Application.onCreate(), remains intact.
-        initializeTransitHelper(TransitAppOnCreateFingerprint.method, mapsApiKey.orEmpty().trim())
+        // attachBaseContext runs before ContentProviders can cache Maps credentials.
+        // Revisit context caches at onCreate as a fallback after Application attachment.
+        val key = mapsApiKey.orEmpty().trim()
+        initializeTransitBeforeProviders(TransitAppOnCreateFingerprint.classDef, key)
+        initializeTransitHelper(TransitAppOnCreateFingerprint.method, key)
     }
 }
 
@@ -57,17 +65,45 @@ internal fun forceRoyaleFeatureFlag(method: MutableMethod, resultIndex: Int) {
     method.replaceInstruction(resultIndex, "const/16 v$register, 0x1")
 }
 
-internal fun initializeTransitHelper(method: MutableMethod, mapsApiKey: String) {
+internal fun initializeTransitHelper(method: MutableMethod, mapsApiKey: String, index: Int = 0) {
     val implementation = method.implementation
         ?: throw PatchException("Transit application initializer has no implementation.")
-    if (implementation.registerCount < 2) {
-        throw PatchException("Transit application initializer needs a local register.")
+    val parameterRegisters = 1 + method.parameterTypes.sumOf {
+        if (it.toString() == "J" || it.toString() == "D") 2 else 1
+    }
+    if (AccessFlags.STATIC.isSet(method.accessFlags) || implementation.registerCount - parameterRegisters < 2) {
+        throw PatchException("Transit application initializer needs two local registers.")
     }
     val key = mapsApiKey.replace("\\", "\\\\").replace("\"", "\\\"")
         .replace("\n", "\\n").replace("\r", "\\r")
     method.addInstructions(
-        0,
-        "const-string v0, \"$key\"\n" +
-            "invoke-static {v0}, $TRANSIT_HELPER_CLASS->init(Ljava/lang/String;)V"
+        index,
+        "move-object/from16 v0, p0\n" +
+            "const-string v1, \"$key\"\n" +
+            "invoke-static {v0, v1}, $TRANSIT_HELPER_CLASS->init(Landroid/content/Context;Ljava/lang/String;)V"
     )
+}
+
+internal fun initializeTransitBeforeProviders(app: MutableClass, mapsApiKey: String) {
+    if (app.superclass != "Landroid/app/Application;" || app.methods.any { it.name == "attachBaseContext" }) {
+        throw PatchException("Transit Application attachment differs from the verified 6.3.7 layout.")
+    }
+    val method = ImmutableMethod(
+        app.type,
+        "attachBaseContext",
+        listOf(ImmutableMethodParameter("Landroid/content/Context;", null, null)),
+        "V",
+        AccessFlags.PROTECTED.value,
+        null,
+        null,
+        MutableMethodImplementation(4)
+    ).toMutable()
+    method.addInstructions(
+        0,
+        "invoke-super {p0, p1}, Landroid/app/Application;->attachBaseContext(Landroid/content/Context;)V\n" +
+            "return-void"
+    )
+    // Only access Context after the superclass has attached it.
+    initializeTransitHelper(method, mapsApiKey, index = 1)
+    app.methods.add(method)
 }

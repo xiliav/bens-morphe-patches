@@ -35,6 +35,10 @@ tasks.test {
     }
 }
 
+tasks.named("check") {
+    dependsOn(":extensions:extension:testReleaseUnitTest")
+}
+
 tasks {
     register<JavaExec>("generatePatchesList") {
         description = "Build patch with patch list"
