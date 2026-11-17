@@ -32,8 +32,23 @@ The 0.1318.0 implementation keeps invitation and challenge event handlers intact
 ## Available patches
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0](https://github.com/xiliav/bens-morphe-patches/releases/tag/v1.0.0)**&nbsp;&nbsp;•&nbsp;&nbsp;`main`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+<details open>
+<summary>📦 Citizen&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
 
-The release workflow generates the patch list here after the first release.
+**Package name:** `sp0n.citizen`
+
+**🎯 Supported versions:**
+
+| 0.1318.0 | 0.1307.0 |
+| :---: | :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Unlock Pro](#unlock-pro) | Unlocks local Citizen Plus/Protect features and hides paywalls. |  |
+
+</details>
 
 <!-- PATCHES_END -->
 
