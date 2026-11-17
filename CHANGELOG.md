@@ -1,3 +1,14 @@
+## [1.1.0](https://github.com/xiliav/bens-morphe-patches/compare/v1.0.0...v1.1.0) (2026-11-17)
+
+### ✨ New Features
+
+* add Transit Royale patch for 6.3.7 ([2d0ec93](https://github.com/xiliav/bens-morphe-patches/commit/2d0ec938a03cbcbf3aaebb6f1534c1be90e53c38))
+
+### 🐛 Bug Fixes
+
+* compare compiled helper parameter descriptors correctly ([828f49d](https://github.com/xiliav/bens-morphe-patches/commit/828f49d33d9c84078a4d4be6f400eb824682c334))
+* compile Transit extension against Android API 37 ([f3abae7](https://github.com/xiliav/bens-morphe-patches/commit/f3abae75cf745b14a54b6af53cb8809a6d5df7cf))
+
 ## 1.0.0 (2026-11-17)
 
 ### ✨ New Features
