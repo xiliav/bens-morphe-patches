@@ -48,6 +48,7 @@ The list below is generated from each release and includes the supported version
 Detailed installation notes, limitations, and credits belong with each app:
 
 - [Citizen](docs/apps/citizen.md)
+- [Transit](docs/apps/transit.md)
 
 ## Build and release
 

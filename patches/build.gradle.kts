@@ -3,7 +3,7 @@ group = "io.github.xiliav.benspatches"
 patches {
     about {
         name = "Ben's Morphe Patches"
-        description = "Citizen 0.1318.0 and 0.1307.0 patches for use with Morphe"
+        description = "Android app patches for use with Morphe Manager"
         source = "https://github.com/xiliav/bens-morphe-patches"
         author = "xiliav"
         contact = "https://github.com/xiliav/bens-morphe-patches/issues"

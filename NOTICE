@@ -28,3 +28,11 @@ for Citizen 0.1318.0 (1151). The build and release infrastructure comes from
 MorpheApp/morphe-patches-template, commit 08719ad.
 
 This independently maintained source is not affiliated with Citizen or Morphe.
+
+Transit patch attribution
+=========================
+The Transit patch and TransitHelper are adapted from rushiranpise/morphe-patches,
+commit 92c0fca0ae103a419c7fc61f9c5b8b38b7d6b82a, under GPL-3.0. Changes add
+Transit 6.3.7 compatibility, exact signatures, register-aware feature flag
+rewriting, and optional Maps key handling that preserves the original key.
+The extension depends on LSPosed AndroidHiddenApiBypass (Apache-2.0).
