@@ -1,15 +1,20 @@
-group = "app.template"
+group = "io.github.xiliav.benspatches"
 
 patches {
-    // TODO: Update this section with your project details.
     about {
-        name = "UserXYZ Patches"
-        description = "Patches for apps I like"
-        source = "git@github.com:UserXYZ/morphe-patches.git"
-        author = "Awesome dev"
-        contact = "na"
-        website = "na"
+        name = "Ben's Morphe Patches"
+        description = "Citizen 0.1318.0 and 0.1307.0 patches for use with Morphe"
+        source = "https://github.com/xiliav/bens-morphe-patches"
+        author = "xiliav"
+        contact = "https://github.com/xiliav/bens-morphe-patches/issues"
+        website = "https://morphe.software/add-source?github=xiliav/bens-morphe-patches"
         license = "GPLv3"
+    }
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xcontext-parameters")
     }
 }
 
@@ -20,6 +25,14 @@ val patchListGeneratorClasspath = configurations.create("patchListGeneratorClass
 dependencies {
     compileOnly(libs.gson)
     patchListGeneratorClasspath(libs.gson)
+    testImplementation("junit:junit:4.13.2")
+}
+
+tasks.test {
+    useJUnit()
+    testLogging {
+        events("passed", "failed", "skipped")
+    }
 }
 
 tasks {

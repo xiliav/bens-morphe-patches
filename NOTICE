@@ -19,3 +19,12 @@ provided that such references:
 - Are accurate, factual, and non-misleading;
 - Do not suggest authorship by the Morphe project; and
 - Appear only in a secondary or descriptive context, not as part of the product or project name.
+
+Citizen patch attribution
+=========================
+The Citizen patch source is adapted from rushiranpise/morphe-patches, commit
+92c0fca0ae103a419c7fc61f9c5b8b38b7d6b82a (GPL-3.0), with compatibility changes
+for Citizen 0.1318.0 (1151). The build and release infrastructure comes from
+MorpheApp/morphe-patches-template, commit 08719ad.
+
+This independently maintained source is not affiliated with Citizen or Morphe.

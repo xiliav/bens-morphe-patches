@@ -1,103 +1,57 @@
-# 👋🧩 Morphe Patches template
+# Ben's Morphe Patches
 
-Template repository for Morphe Patches.
+An independent Citizen patch source for use with [Morphe Manager](https://morphe.software), adapted from [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches/tree/main/patches/src/main/kotlin/app/template/patches/citizen).
 
-## ❓ About
+[**Add this source to Morphe**](https://morphe.software/add-source?github=xiliav/bens-morphe-patches&app=sp0n.citizen)
 
-Patches for apps I like.
+Repository address: `https://github.com/xiliav/bens-morphe-patches`
 
-<!-- TODO: Update this about section with a brief introduction/summary about this repo and what it offers. -->
+## Install on your phone
 
-### How to use these patches
+1. Install or update [Morphe Manager](https://morphe.software).
+2. Open the **Add this source to Morphe** link above and confirm, or open **Sources → + → Remote** and paste this repository's address.
+3. Wait for the source to load. On the home screen, choose **Citizen** and this source. In Expert mode, enable **Unlock Pro**.
+4. Select the original **Citizen 0.1318.0 (version code 1151) APKM** from your phone's storage. Use the complete APKM bundle, including its splits. You do not need to extract DEX files to patch on your phone.
+5. Patch, then install the result using Morphe's prompts. If Android reports a signing conflict with stock Citizen, installing the patched app may require removing the stock app first; removing it can delete its local data.
 
-Click the button below, or manually add this repo url to Morphe Manager: https://github.com/xyz-user/xyz-patches
+The source only becomes usable after the first successful release has published its `.mpp` bundle and `patches-bundle.json`. Check [Releases](https://github.com/xiliav/bens-morphe-patches/releases) if Morphe cannot load it yet.
 
-<a href="https://morphe.software/add-source?github=xyz-user/xyz-patches">
-  <img src=".github/assets/add-to-morphe.svg" alt="Add to Morphe" height="48">
-</a>
+For a manual import, download `patches-<version>.mpp` from a release and add it with **Sources → + → Local**. A remote source can update automatically; a local import must be updated manually.
 
-## 🩹 Patches list
+## Supported versions and limits
+
+| Citizen version | Version code | Implementation |
+| --- | --- | --- |
+| 0.1318.0 | 1151 | Updated against supplied DEX files; 34 required targets checked statically |
+| 0.1307.0 | 1139 | Original implementation retained; not revalidated against the old APK |
+
+The patch overrides local Plus/Protect checks and suppresses paywalls. It does not create a subscription on Citizen's servers or establish server-side eligibility for paid services. Static checks and a successful build do not establish that every feature works on a phone; device validation is still required.
+
+The 0.1318.0 implementation keeps invitation and challenge event handlers intact, changes only the family collector's entitlement flag, and preserves superclass initialization when dismissing paywall activities. Old Superwall and obfuscated collector hooks execute only for the legacy version.
+
+## Available patches
 
 <!-- PATCHES_START EXPANDED -->
 
-<!-- Do not modify this section by hand. The patch list is generated when release.yml creates a new release.
-     
-     If you wish for the patches list to be collapsed, then remove the word 'EXPANDED' from the comment tag above.
+The release workflow generates the patch list here after the first release.
 
-     If you wish to manually keep this list updated then remove the PATCHES_START and PATCHES_END 
-     comment blocks entirely. -->
-
-#### A list of your patches will automatically be shown here after your first patches release is created.
-
-&nbsp;
-
-## 🚀 Getting development started
-
-To start using this template, follow these steps:
-
-1. [Setup](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/README.md) your development environment including adding a GitHub PAT as described [here](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/2_1_setup.md#-prepare-the-environment).
-2. [Create a new repository using this template](https://github.com/new?template_name=morphe-patches-template&template_owner=MorpheApp). Select create a new repository, and **enable 'Include all branches'** 
-3. Enable "Allow GitHub Actions to create and approve pull requests" in your repo Settings > Actions > General > Workflow permissions
-4. Update the [build.gradle.kts](patches/build.gradle.kts) file (Specifically, the 
-   [group of the project](patches/build.gradle.kts#L1), and the [About](patches/build.gradle.kts#L6-L11))
-5. Update the [README.md](README.md) file to be specific of your repo, and update the links in the [issue templates](.github/ISSUE_TEMPLATE).
-6. Choose a name for your patches project. Keep in mind you must use a name that does not 
-   imply authorship by the Morphe open source project. If unsure, then simply name these
-   patches after yourself ("UserXYZ Morphe patches"). See the [NOTICE](NOTICE) for details. 
-7. (Optional): Add `patches-bundle.png` to the project if you want a custom icon to show in
-   Morphe Manager instead of your GitHub profile avatar.
-8. (Optional): Sign your releases, so Morphe Manager refuses a release that was changed or swapped after you published it:
-   1. Run `./gradlew generateSigningKey`. It creates `morphe-signing.pub` and `morphe-signing.key`.
-   2. Commit `morphe-signing.pub`. Never commit `morphe-signing.key`, it is already ignored by git.
-   3. Add the content of `morphe-signing.key` as the `MORPHE_SIGNING_KEY` secret in your repo
-      Settings > Secrets and variables > Actions, then keep a backup of it somewhere safe and delete the file.
-
-   Every release is signed from then on. If you lose the key or it leaks, create a new one the same way;
-   users then have to confirm the new key in Morphe Manager before they get your next release.
-
-🎉 You are now ready to start creating patches!
-
-## 🧑‍💻 Dev usage
-
-To develop and release your Patches using this template:
-
-- **Make all changes to the `dev` branch.**
-- For local development work build your patches using the gradle task `./gradlew buildAndroid` to generate the mpp file found in `patches/build/libs/patches-*.mpp`. Apply your patches locally using Morphe Desktop tool like any other patch bundle.
-- Always use [Semantic commit](https://kapeli.com/cheat_sheets/Semantic_Commits.docset/Contents/Resources/Documents/index) messages for commits. To keep it simple use only 3 commit message types: 
-  - `feat: Added a new feature`
-  - `fix: Some problem now fixed`
-  - `chore: Random change you do not want in the user facing changelog`
-- Commits of `fix:` and `feat:` will automatically generate new pre-releases and `chore:` will not create a new release.
-- Users can apply your dev branch releases by enabling `pre-release` in Morphe Manager patch sources.
-- When your dev branch is ready, and you want a stable release, merge dev branch to main (do not squash, and only merge).
-- **Always use semantic release (release.yml)**. Do not manually upload or create releases by hand
-  because many files must be updated and release.yml handles everything.
-
-## 🤓 Tips
-- See the [patcher documentation](https://github.com/MorpheApp/morphe-patcher/blob/main/docs/1_patcher_intro.md) for more examples of creating patches and fingerprints.
-- Do not use AI to create new release scripts. The `release.yml` here already handles everything.
-  If you need something custom with your releases then modify the existing `release.yml`
-  and `.releaserc` instead of writing everything new from scratch.
-- Do not manually edit or manually commit any generated files such as: `patches-list.json`,
-  `patches-bundle.json`, `CHANGELOG.md`.  These files will be automatically updated by `release.yml`.
-- Do not force push any semantic release commits as that will break all future releases.
-  If you need to fix a broken release, it's always easiest to create a new release instead of 
-  fixing an existing release.
-
-
-<!-- The patches end tag is intentionally placed here so the first release will clean up 
-     this readme of all developer instructions above. -->
 <!-- PATCHES_END -->
 
-### 🛠️ Building locally
+## Build and release
 
-- Run `./gradlew buildAndroid`
-- The built patches .mpp file is found in `patches/build/libs/patches-*.mpp`
-- Patch the mpp file using [Morphe-Desktop](https://github.com/MorpheApp/morphe-desktop)
-  like any other patch bundle.
+This project uses the official [Morphe patches template](https://github.com/MorpheApp/morphe-patches-template) and its existing semantic-release workflow. It publishes the Android `.mpp` bundle, patch list, changelog, and Manager metadata together.
 
-See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation) for more information.
+- Make changes on `dev` with `fix:` or `feat:` commit messages to create a prerelease. Enable **Pre-release patches** on this source in Manager to receive those builds.
+- Merge `dev` into `main` without squashing to create a stable release. The **Release** workflow also supports manual dispatch.
+- Do not edit generated `patches-list.json`, `patches-bundle.json`, or `CHANGELOG.md` by hand.
+- For local builds, use Java 21 and run `./gradlew :patches:buildAndroid :patches:generatePatchesList`. The bundle appears under `patches/build/libs/`.
+- GitHub Packages authentication may be required locally. Follow [Morphe's setup documentation](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/1_setup.md); never commit a token. Actions uses its built-in `GITHUB_TOKEN`.
+- Release signing is optional and is not configured initially. Follow [Morphe's signing guide](https://github.com/MorpheApp/morphe-documentation/blob/main/docs/morphe-development/2_signing.md) to add a persistent signing key. The private key is ignored by git.
 
-## 📜 License
+Original APKs, DEX files, account information, and credentials are not part of this repository or its release assets.
 
-UserXYZ Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+## Attribution and license
+
+Citizen patch source: [rushiranpise/morphe-patches](https://github.com/rushiranpise/morphe-patches), commit `92c0fca0ae103a419c7fc61f9c5b8b38b7d6b82a`, with compatibility updates for 0.1318.0. Build and release infrastructure: [MorpheApp/morphe-patches-template](https://github.com/MorpheApp/morphe-patches-template).
+
+Licensed under [GPL-3.0](LICENSE), with the notices in [NOTICE](NOTICE). This source is independently maintained and is not affiliated with Citizen or the Morphe project.

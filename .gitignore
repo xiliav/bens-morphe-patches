@@ -132,3 +132,10 @@ node_modules/
 # Ignore IDEA files
 .idea/
 local.properties
+
+# Never publish app binaries or signing material.
+*.dex
+*.apkm
+*.apks
+*.xapk
+morphe-signing.key
