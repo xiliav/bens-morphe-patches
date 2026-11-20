@@ -33,7 +33,8 @@ val citizenUnlockProPatch = bytecodePatch(
     compatibleWith(CITIZEN_COMPATIBILITY)
 
     execute {
-        if (packageMetadata.versionName == "0.1318.0") {
+        val versionHooks = citizenVersionHooks(packageMetadata.versionName)
+        if (versionHooks != null) {
             // Required, DEX-verified hooks: a missing target must fail visibly.
             // Do not reuse the legacy Superwall or collector hooks on this build.
             listOf(
@@ -109,12 +110,12 @@ val citizenUnlockProPatch = bytecodePatch(
 
             // Preserve demo intent construction and the paid Protect navigation;
             // replacing these entire methods would discard legitimate behavior.
-            PurchasePremiumHelper1318Fingerprint.method.addInstructions(0, "const/4 p1, 0x0")
-            ProtectFabHelper1318Fingerprint.method.addInstructions(0, "const/4 p3, 0x1")
+            versionHooks.purchasePremiumHelper.method.addInstructions(0, "const/4 p1, 0x0")
+            versionHooks.protectFabHelper.method.addInstructions(0, "const/4 p3, 0x1")
 
             // Only change the entitlement flag. Preserve pending-invite handling,
             // Safety Network navigation, finish(), and the collector's Unit return.
-            FamilyPlanBenefitFlowCollector1318Fingerprint.let { fp ->
+            versionHooks.familyPlanBenefitCollector.let { fp ->
                 val flagIndex = fp.instructionMatches.single().index
                 val flagRegister = fp.method.getInstruction<TwoRegisterInstruction>(flagIndex).registerA
                 fp.method.replaceInstruction(flagIndex, "const/4 v$flagRegister, 0x1")
@@ -127,7 +128,7 @@ val citizenUnlockProPatch = bytecodePatch(
         }
 
         // Legacy implementation for 0.1307.0. Its obfuscated signatures and
-        // optional historical hooks are deliberately isolated from 0.1318.0.
+        // optional historical hooks are deliberately isolated from the modern builds.
         // Layer 2: Plus/Protect DTO getters
         listOf(
             CitizenPlusInfoGetActiveFingerprint,

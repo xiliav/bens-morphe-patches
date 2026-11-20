@@ -728,3 +728,63 @@ val FamilyPlanBenefitFlowCollector1318Fingerprint = Fingerprint(
         )
     )
 )
+
+// Version-specific hooks for 0.1319.0 (1152). The three obfuscated signatures
+// changed; shared, named targets still match the verified 0.1318.0 layout.
+val PurchasePremiumHelper1319Fingerprint = Fingerprint(
+    definingClass = "Lhcd;",
+    name = "a",
+    parameters = listOf(
+        "Landroid/content/Context;",
+        "Z",
+        "Lsp0n/citizen/data/variablesettings/VariableSettingsRepository;",
+        "Lsp0n/citizen/analytics/premium/purchase/PurchaseAnalyticsApi\$ProtectPaywallOrigin;"
+    ),
+    returnType = "Landroid/content/Intent;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lsp0n/citizen/paywall/superwall/MultimonthPaywallActivity\$a;",
+            name = "a",
+            returnType = "Landroid/content/Intent;"
+        )
+    )
+)
+
+val ProtectFabHelper1319Fingerprint = Fingerprint(
+    definingClass = "Lgcd;",
+    name = "a",
+    parameters = listOf(
+        "Lsp0n/citizen/data/variablesettings/VariableSettingsRepository;",
+        "Lsp0n/citizen/data/store/PreferenceStorage;",
+        "Lbo;",
+        "Z",
+        "Lf17;",
+        "Lsp0n/citizen/premium/purchase/ui/ProtectFabOrigin;"
+    ),
+    returnType = "V",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lsp0n/citizen/paywall/superwall/MultimonthPaywallActivity\$a;",
+            name = "a",
+            returnType = "Landroid/content/Intent;"
+        )
+    )
+)
+
+val FamilyPlanBenefitFlowCollector1319Fingerprint = Fingerprint(
+    definingClass = "Lsp0n/citizen/social/safetynetwork/FamilyPlanBenefitActivity\$a\$a\$a;",
+    name = "emit",
+    parameters = listOf("Ljava/lang/Object;", "Lxx3;"),
+    returnType = "Ljava/lang/Object;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IGET_BOOLEAN,
+            definingClass = "Lsp0n/citizen/social/safetynetwork/e\$b\$a;",
+            name = "b",
+            type = "Z"
+        )
+    )
+)
