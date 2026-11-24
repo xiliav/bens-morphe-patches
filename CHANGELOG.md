@@ -1,3 +1,9 @@
+## [1.1.4](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.3...v1.1.4) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* support Citizen 0.1320.0 with updated version-specific hooks ([94224d3](https://github.com/xiliav/bens-morphe-patches/commit/94224d3ac0c802ce444acb43d481c315af209557))
+
 ## [1.1.3](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.2...v1.1.3) (2026-11-20)
 
 ### 🐛 Bug Fixes
