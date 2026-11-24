@@ -121,8 +121,8 @@ val citizenUnlockProPatch = bytecodePatch(
                 fp.method.replaceInstruction(flagIndex, "const/4 v$flagRegister, 0x1")
             }
 
-            // Education/invite collectors retain their original Lyx3 signatures
-            // and behavior. The ShowPaywallUseCase hooks above handle their gates.
+            // Education/invite collectors retain their original continuation
+            // signatures and behavior. The ShowPaywallUseCase hooks above handle their gates.
             // MainActivity$d$a$a now handles challenges and must remain untouched.
             return@execute
         }

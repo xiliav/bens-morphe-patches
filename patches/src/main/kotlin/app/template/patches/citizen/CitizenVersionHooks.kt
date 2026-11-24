@@ -20,5 +20,10 @@ internal fun citizenVersionHooks(version: String): CitizenVersionHooks? = when (
         ProtectFabHelper1319Fingerprint,
         FamilyPlanBenefitFlowCollector1319Fingerprint
     )
+    "0.1320.0" -> CitizenVersionHooks(
+        PurchasePremiumHelper1320Fingerprint,
+        ProtectFabHelper1320Fingerprint,
+        FamilyPlanBenefitFlowCollector1320Fingerprint
+    )
     else -> null
 }

@@ -788,3 +788,62 @@ val FamilyPlanBenefitFlowCollector1319Fingerprint = Fingerprint(
         )
     )
 )
+
+// Version-specific hooks for 0.1320.0 (1153). Shared named hooks remain valid.
+val PurchasePremiumHelper1320Fingerprint = Fingerprint(
+    definingClass = "Ljfd;",
+    name = "a",
+    parameters = listOf(
+        "Landroid/content/Context;",
+        "Z",
+        "Lsp0n/citizen/data/variablesettings/VariableSettingsRepository;",
+        "Lsp0n/citizen/analytics/premium/purchase/PurchaseAnalyticsApi\$ProtectPaywallOrigin;"
+    ),
+    returnType = "Landroid/content/Intent;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lsp0n/citizen/paywall/superwall/MultimonthPaywallActivity\$a;",
+            name = "a",
+            returnType = "Landroid/content/Intent;"
+        )
+    )
+)
+
+val ProtectFabHelper1320Fingerprint = Fingerprint(
+    definingClass = "Lifd;",
+    name = "a",
+    parameters = listOf(
+        "Lsp0n/citizen/data/variablesettings/VariableSettingsRepository;",
+        "Lsp0n/citizen/data/store/PreferenceStorage;",
+        "Lao;",
+        "Z",
+        "Ld17;",
+        "Lsp0n/citizen/premium/purchase/ui/ProtectFabOrigin;"
+    ),
+    returnType = "V",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC),
+    filters = listOf(
+        methodCall(
+            definingClass = "Lsp0n/citizen/paywall/superwall/MultimonthPaywallActivity\$a;",
+            name = "a",
+            returnType = "Landroid/content/Intent;"
+        )
+    )
+)
+
+val FamilyPlanBenefitFlowCollector1320Fingerprint = Fingerprint(
+    definingClass = "Lsp0n/citizen/social/safetynetwork/FamilyPlanBenefitActivity\$a\$a\$a;",
+    name = "emit",
+    parameters = listOf("Ljava/lang/Object;", "Lhx3;"),
+    returnType = "Ljava/lang/Object;",
+    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.FINAL),
+    filters = listOf(
+        fieldAccess(
+            opcode = Opcode.IGET_BOOLEAN,
+            definingClass = "Lsp0n/citizen/social/safetynetwork/e\$b\$a;",
+            name = "b",
+            type = "Z"
+        )
+    )
+)
