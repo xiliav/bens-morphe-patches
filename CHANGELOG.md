@@ -1,3 +1,9 @@
+## [1.1.5](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.4...v1.1.5) (2026-11-24)
+
+### 🐛 Bug Fixes
+
+* keep only latest Citizen support and remove legacy patch code ([ddd707d](https://github.com/xiliav/bens-morphe-patches/commit/ddd707df66abd6cff105b21a37b1b97c0eb9eb27))
+
 ## [1.1.4](https://github.com/xiliav/bens-morphe-patches/compare/v1.1.3...v1.1.4) (2026-11-24)
 
 ### 🐛 Bug Fixes
